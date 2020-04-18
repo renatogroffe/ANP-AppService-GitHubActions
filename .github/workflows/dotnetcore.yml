@@ -1,0 +1,33 @@
+name: .NET Core
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@master
+
+    - name: Setup .NET Core - selecionando versao
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.101
+    
+    - name: Build da aplicacao
+      run: dotnet build ./APIContagem --configuration Release
+
+    - name: Publish da aplicacao
+      run: dotnet publish ./APIContagem -c Release -o app
+
+    - name: Logando no Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Azure WebApp
+      uses: Azure/webapps-deploy@v1
+      with:
+        app-name: groffegithubactions
+        package: './app'
